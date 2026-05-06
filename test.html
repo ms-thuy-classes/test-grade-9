@@ -1,0 +1,1097 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CBT — Làm bài</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+:root{
+  --blue-50:#EBF4FF;--blue-100:#C3DFFE;--blue-200:#93C5FD;
+  --blue-400:#60A5FA;--blue-500:#3B82F6;--blue-600:#2563EB;--blue-700:#1D4ED8;
+  --bg:#F0F7FF;--card:#FFF;--border:#DBEAFE;
+  --text:#1E3A5F;--text2:#4A6FA5;--muted:#94A3B8;
+  --green:#10B981;--green-l:#D1FAE5;
+  --red:#EF4444;--red-l:#FEE2E2;
+  --orange:#F59E0B;--orange-l:#FEF3C7;
+  --r:12px;--r-sm:8px;
+  --sh:0 2px 12px rgba(37,99,235,.07);
+  --sh-md:0 4px 24px rgba(37,99,235,.12);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:15px}
+
+/* NAV */
+.nav{background:#fff;border-bottom:1px solid var(--border);padding:0 1.5rem;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;box-shadow:var(--sh)}
+.brand{font-family:'DM Serif Display',serif;font-size:1.1rem;color:var(--blue-600);text-decoration:none;display:flex;align-items:center;gap:6px}
+.nav-center{font-size:14px;font-weight:600;color:var(--text);text-align:center}
+.nav-right{display:flex;gap:8px;align-items:center}
+.nav-tab-btn{padding:5px 14px;border-radius:20px;border:none;background:transparent;color:var(--text2);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;font-weight:500;transition:all .2s}
+.nav-tab-btn.active{background:var(--blue-50);color:var(--blue-600)}
+.nav-tab-btn:hover:not(.active){background:var(--bg)}
+
+/* LAYOUT */
+.test-layout{display:grid;grid-template-columns:65% 35%;height:calc(100vh - 52px);overflow:hidden}
+
+/* PDF */
+.pdf-panel{background:#E8EEFA;border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+.pdf-toolbar{background:#fff;border-bottom:1px solid var(--border);padding:9px 14px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.pdf-title{font-weight:600;font-size:13px;color:var(--text)}
+.pdf-controls{display:flex;align-items:center;gap:6px}
+.pdf-btn{background:var(--blue-50);border:1px solid var(--blue-200);color:var(--blue-600);padding:5px 11px;border-radius:6px;cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif;font-weight:500;transition:all .15s;white-space:nowrap}
+.pdf-btn:hover{background:var(--blue-100)}
+.pdf-container{flex:1;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;align-items:center;gap:1rem}
+.pdf-frame-wrap{width:100%;max-width:700px;background:#fff;border-radius:8px;box-shadow:var(--sh-md);overflow:hidden}
+.pdf-frame-wrap iframe{width:100%;height:800px;border:none;display:block}
+.pdf-loading{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:300px;gap:14px;color:var(--text2);width:100%}
+.spinner{width:38px;height:38px;border:3px solid var(--blue-100);border-top-color:var(--blue-600);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.pdf-fallback{text-align:center;padding:2rem;color:var(--text2);width:100%}
+.pdf-fallback a{color:var(--blue-600);font-weight:500;text-decoration:none}
+.pdf-fallback a:hover{text-decoration:underline}
+
+/* ANSWER PANEL */
+.answer-panel{background:#fff;overflow-y:auto;display:flex;flex-direction:column}
+.answer-panel::-webkit-scrollbar{width:4px}
+.answer-panel::-webkit-scrollbar-thumb{background:var(--blue-200);border-radius:2px}
+
+/* INNER NAV TABS */
+.inner-tabs{background:#fff;border-bottom:1px solid var(--border);display:flex;padding:0 16px;gap:2px;flex-shrink:0}
+.inner-tab{padding:10px 12px;border:none;border-bottom:2px solid transparent;background:none;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--muted);cursor:pointer;font-weight:500;transition:all .2s;white-space:nowrap}
+.inner-tab.active{color:var(--blue-600);border-bottom-color:var(--blue-600)}
+
+/* PANEL SECTIONS */
+.panel-section{display:none;flex-direction:column;flex:1}
+.panel-section.active{display:flex}
+
+/* STUDENT INFO */
+.student-bar{padding:10px 14px;border-bottom:1px solid var(--border);background:var(--blue-50)}
+.student-bar h4{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;font-weight:600}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.info-input{width:100%;padding:7px 11px;border:1px solid var(--border);border-radius:var(--r-sm);font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);background:#fff;outline:none;transition:border-color .2s}
+.info-input:focus{border-color:var(--blue-400)}
+.info-input:disabled{background:#F8FAFC;color:var(--muted)}
+
+/* TIMER */
+.timer-bar{padding:10px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.timer-left{}
+.timer-label{font-size:11px;color:var(--muted);margin-bottom:2px}
+.timer-display{font-size:1.55rem;font-weight:700;font-variant-numeric:tabular-nums;color:var(--blue-600);letter-spacing:2px;font-family:'DM Serif Display',serif}
+.timer-display.warn{color:var(--red);animation:blink 1s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.55}}
+.timer-actions{display:flex;gap:6px}
+
+/* PROGRESS */
+.progress-bar-wrap{padding:8px 14px;border-bottom:1px solid var(--border);background:var(--bg)}
+.progress-label{display:flex;justify-content:space-between;font-size:11px;color:var(--text2);margin-bottom:4px}
+.progress-track{height:5px;background:var(--blue-100);border-radius:3px;overflow:hidden}
+.progress-fill{height:100%;background:var(--blue-500);border-radius:3px;transition:width .3s}
+
+/* ANSWER BODY */
+.answer-body{padding:10px 14px;flex:1}
+.part-block{margin-bottom:16px}
+.part-head{font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px}
+.part-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+/* MCQ ROW */
+.mcq-row{display:flex;align-items:center;gap:6px;padding:4px 6px;border-radius:var(--r-sm);transition:background .15s}
+.mcq-row:hover{background:var(--bg)}
+.q-num{font-size:12px;color:var(--muted);min-width:22px;font-weight:500}
+.opts{display:flex;gap:3px}
+.opt{width:28px;height:28px;border-radius:50%;border:1.5px solid var(--border);background:#fff;color:var(--text2);font-size:11px;font-weight:700;cursor:pointer;transition:all .15s;font-family:'DM Sans',sans-serif;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.opt:hover{border-color:var(--blue-400);color:var(--blue-600);background:var(--blue-50)}
+.opt.sel{background:var(--blue-600);border-color:var(--blue-600);color:#fff}
+.opt.ok{background:var(--green);border-color:var(--green);color:#fff}
+.opt.bad{background:var(--red);border-color:var(--red);color:#fff}
+.opt.miss{background:var(--green-l);border-color:var(--green);color:#065F46}
+.opt:disabled{cursor:default}
+.res-icon{font-size:13px;margin-left:3px}
+
+/* TF ROW */
+.tf-row{display:flex;align-items:center;gap:6px;padding:4px 6px;border-radius:var(--r-sm)}
+.tf-row:hover{background:var(--bg)}
+.tf-btn{padding:4px 10px;border-radius:20px;border:1.5px solid var(--border);background:#fff;color:var(--text2);font-size:12px;font-weight:500;cursor:pointer;transition:all .15s;font-family:'DM Sans',sans-serif}
+.tf-btn:hover{border-color:var(--blue-400);color:var(--blue-600)}
+.tf-btn.sel{background:var(--blue-600);border-color:var(--blue-600);color:#fff}
+.tf-btn.ok{background:var(--green);border-color:var(--green);color:#fff}
+.tf-btn.bad{background:var(--red);border-color:var(--red);color:#fff}
+.tf-btn.miss{background:var(--green-l);border-color:var(--green);color:#065F46}
+.tf-btn:disabled{cursor:default}
+
+/* SHORT ROW */
+.short-row{display:flex;align-items:center;gap:6px;padding:4px 6px;border-radius:var(--r-sm)}
+.short-row:hover{background:var(--bg)}
+.short-input{flex:1;padding:5px 9px;border:1.5px solid var(--border);border-radius:var(--r-sm);font-family:'DM Sans',sans-serif;font-size:12px;color:var(--text);background:#fff;outline:none;transition:border-color .2s;min-width:0}
+.short-input:focus{border-color:var(--blue-400)}
+.short-input:disabled{background:#F8FAFC;color:var(--muted)}
+.short-input.ok{border-color:var(--green);background:var(--green-l)}
+.short-input.bad{border-color:var(--red);background:var(--red-l)}
+
+/* SUBMIT AREA */
+.submit-footer{padding:12px 14px;border-top:1px solid var(--border);background:#fff;flex-shrink:0}
+.submit-row{display:flex;gap:8px}
+
+/* BUTTONS */
+.btn{padding:9px 18px;border-radius:24px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:500;font-size:13px;transition:all .2s;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:5px}
+.btn-primary{background:var(--blue-600);color:#fff}
+.btn-primary:hover{background:var(--blue-700);transform:translateY(-1px)}
+.btn-secondary{background:var(--blue-50);color:var(--blue-600);border:1px solid var(--blue-200)}
+.btn-secondary:hover{background:var(--blue-100)}
+.btn-danger{background:#FEE2E2;color:#991B1B}
+.btn-danger:hover{background:#FECACA}
+.btn-green{background:var(--green-l);color:#065F46}
+.btn-green:hover{background:#A7F3D0}
+.btn-sm{padding:6px 14px;font-size:12px}
+.btn-icon{padding:7px 10px;border-radius:var(--r-sm)}
+.btn:disabled{opacity:.5;cursor:default;transform:none!important}
+
+/* RESULTS */
+.results-wrap{padding:14px}
+.score-card{background:linear-gradient(135deg,#EBF4FF 0%,#EDE9FE 100%);border:1px solid var(--blue-200);border-radius:var(--r);padding:1.25rem;text-align:center;margin-bottom:1.25rem}
+.score-big{font-family:'DM Serif Display',serif;font-size:2.6rem;color:var(--blue-700);line-height:1;margin-bottom:4px}
+.score-sub{color:var(--text2);font-size:13px}
+.score-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:1rem}
+.s-stat{background:#fff;border-radius:var(--r-sm);padding:10px 6px;text-align:center}
+.s-stat-n{font-family:'DM Serif Display',serif;font-size:1.3rem;color:var(--text)}
+.s-stat-l{font-size:10px;color:var(--muted);margin-top:2px}
+.result-actions{display:flex;gap:6px;margin-bottom:1rem;flex-wrap:wrap}
+.result-item{display:flex;align-items:flex-start;gap:8px;padding:8px 10px;border-radius:var(--r-sm);margin-bottom:5px;border:1px solid transparent}
+.result-item.correct{background:var(--green-l);border-color:#A7F3D0}
+.result-item.wrong{background:var(--red-l);border-color:#FECACA}
+.result-item.skipped{background:var(--bg);border-color:var(--border)}
+.ri-icon{font-size:14px;flex-shrink:0;margin-top:1px}
+.ri-body{flex:1;min-width:0}
+.ri-num{font-weight:600;font-size:12px;color:var(--text)}
+.ri-ans{font-size:11px;color:var(--text2);margin-top:1px}
+.ri-exp{font-size:11px;color:var(--text2);margin-top:5px;padding:5px 8px;background:rgba(255,255,255,.7);border-radius:5px;border-left:3px solid var(--blue-200);line-height:1.4}
+
+/* VOCAB TAB */
+.vocab-tab-body{padding:14px;display:flex;flex-direction:column;gap:14px}
+.flashcard-wrap{perspective:1000px}
+.fc{width:100%;height:160px;position:relative;transform-style:preserve-3d;transition:transform .5s;cursor:pointer}
+.fc.flipped{transform:rotateY(180deg)}
+.fc-front,.fc-back{position:absolute;inset:0;backface-visibility:hidden;border-radius:var(--r);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1.5rem}
+.fc-front{background:#fff;border:1px solid var(--border);box-shadow:var(--sh-md)}
+.fc-back{background:var(--blue-600);color:#fff;transform:rotateY(180deg)}
+.fc-word{font-family:'DM Serif Display',serif;font-size:1.6rem;color:var(--text);margin-bottom:4px}
+.fc-ipa{font-size:12px;color:var(--muted);margin-bottom:6px}
+.fc-hint{font-size:11px;color:var(--muted);margin-top:8px}
+.fc-meaning{font-size:1rem;font-weight:600;text-align:center;margin-bottom:6px}
+.fc-example{font-size:12px;text-align:center;opacity:.85;font-style:italic}
+.fc-nav{display:flex;align-items:center;justify-content:center;gap:10px}
+.fc-counter{font-size:12px;color:var(--text2)}
+.vocab-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px}
+.v-mini{background:#fff;border:1px solid var(--border);border-radius:var(--r-sm);padding:10px;position:relative;cursor:pointer;transition:all .15s}
+.v-mini:hover{border-color:var(--blue-200);box-shadow:var(--sh)}
+.v-mini.hard{border-left:3px solid var(--orange)}
+.v-mini.fav{border-left:3px solid #EC4899}
+.v-mini h4{font-size:13px;color:var(--text);margin-bottom:1px}
+.v-mini .ipa{font-size:10px;color:var(--muted)}
+.v-mini .meaning{font-size:11px;color:var(--text2);margin-top:3px}
+.v-actions{position:absolute;top:6px;right:6px;display:flex;gap:2px}
+.v-act{background:none;border:none;cursor:pointer;font-size:12px;color:var(--muted);transition:color .15s;padding:1px}
+.v-act:hover{color:var(--text)}
+.v-act.ah{color:var(--orange)}
+.v-act.af{color:#EC4899}
+
+/* QUIZ TAB */
+.quiz-tab-body{padding:14px;display:flex;flex-direction:column;gap:12px}
+.quiz-prog{background:var(--bg);border:1px solid var(--border);border-radius:var(--r-sm);padding:10px 12px}
+.quiz-card{background:#fff;border:1px solid var(--border);border-radius:var(--r);padding:14px;box-shadow:var(--sh)}
+.quiz-q{font-size:13px;font-weight:500;color:var(--text);margin-bottom:12px;line-height:1.5}
+.quiz-opts{display:flex;flex-direction:column;gap:6px}
+.quiz-opt{display:flex;align-items:flex-start;gap:8px;padding:8px 11px;border-radius:var(--r-sm);border:1.5px solid var(--border);cursor:pointer;transition:all .15s;background:#fff;text-align:left;font-family:'DM Sans',sans-serif;font-size:12px;color:var(--text);width:100%}
+.quiz-opt:hover:not(:disabled){border-color:var(--blue-400);background:var(--blue-50)}
+.quiz-opt.qok{border-color:var(--green);background:var(--green-l);color:#065F46}
+.quiz-opt.qbad{border-color:var(--red);background:var(--red-l);color:#991B1B}
+.quiz-opt.qreveal{border-color:var(--green);background:var(--green-l);color:#065F46}
+.quiz-opt:disabled{cursor:default}
+.quiz-letter{font-weight:700;font-size:11px;min-width:16px;color:var(--text2);flex-shrink:0;margin-top:1px}
+.quiz-fb{margin-top:8px;padding:8px 11px;border-radius:var(--r-sm);font-size:12px;display:none;line-height:1.4}
+.quiz-fb.show{display:block}
+.quiz-fb.fb-ok{background:var(--green-l);color:#065F46;border:1px solid #A7F3D0}
+.quiz-fb.fb-bad{background:var(--red-l);color:#991B1B;border:1px solid #FECACA}
+.quiz-sum{background:#fff;border:1px solid var(--border);border-radius:var(--r);padding:1.5rem;text-align:center;box-shadow:var(--sh)}
+.quiz-sum h3{font-family:'DM Serif Display',serif;font-size:1.3rem;margin-bottom:.75rem;color:var(--text)}
+.quiz-big{font-family:'DM Serif Display',serif;font-size:2.5rem;color:var(--blue-600);margin-bottom:4px}
+
+/* REVIEW TAB */
+.review-tab-body{padding:14px;display:flex;flex-direction:column;gap:10px}
+.rev-item{background:#fff;border:1px solid var(--border);border-left:3px solid var(--red);border-radius:var(--r-sm);padding:12px 13px;box-shadow:var(--sh)}
+.rev-item h4{font-size:13px;font-weight:600;color:var(--text);margin-bottom:5px}
+.rev-ans{font-size:12px;margin-bottom:2px;color:var(--text2)}
+.rev-ans .yours{color:var(--red);font-weight:600}
+.rev-ans .correct{color:var(--green);font-weight:600}
+.rev-exp{font-size:12px;color:var(--text2);padding:6px 9px;background:var(--blue-50);border-radius:5px;border-left:3px solid var(--blue-200);margin-top:7px;line-height:1.4}
+
+/* MOBILE */
+.mob-bar{display:none;position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--border);padding:6px;gap:4px;z-index:100}
+.mob-tab{flex:1;padding:7px 4px;text-align:center;border-radius:var(--r-sm);background:transparent;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:11px;color:var(--muted);font-weight:500;transition:all .15s}
+.mob-tab.active{background:var(--blue-50);color:var(--blue-600)}
+
+/* LOADING OVERLAY */
+.page-loader{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;z-index:500}
+.page-loader p{color:var(--text2);font-size:14px}
+.page-loader.hidden{display:none}
+
+/* TOAST */
+.toast{position:fixed;bottom:70px;left:50%;transform:translateX(-50%) translateY(10px);background:#1E3A5F;color:#fff;padding:9px 18px;border-radius:20px;font-size:13px;font-weight:500;opacity:0;transition:all .3s;z-index:999;white-space:nowrap;box-shadow:var(--sh-md)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+@media(max-width:768px){
+  .test-layout{grid-template-columns:1fr;height:auto}
+  .pdf-panel{height:45vh}
+  .answer-panel{min-height:60vh}
+  .mob-bar{display:flex}
+  .pdf-panel.mob-hide,.answer-panel.mob-hide{display:none}
+  body{padding-bottom:58px}
+  .nav-center{display:none}
+  .inner-tabs{overflow-x:auto;white-space:nowrap;-webkit-overflow-scrolling:touch}
+}
+</style>
+</head>
+<body>
+
+<div class="page-loader" id="page-loader">
+  <div class="spinner"></div>
+  <p>Đang tải dữ liệu...</p>
+</div>
+
+<!-- NAV -->
+<nav class="nav">
+  <a class="brand" href="index.html">← EnglishCBT</a>
+  <div class="nav-center" id="nav-title">Practice Test</div>
+  <div class="nav-right">
+    <button class="nav-tab-btn active" id="nav-do" onclick="showTestView('do')">Làm bài</button>
+    <button class="nav-tab-btn" id="nav-vocab-nav" onclick="showTestView('vocab')">Từ vựng</button>
+    <button class="nav-tab-btn" id="nav-quiz-nav" onclick="showTestView('quiz')">Quiz</button>
+    <button class="nav-tab-btn" id="nav-review-nav" onclick="showTestView('review')">Lỗi sai</button>
+  </div>
+</nav>
+
+<!-- TEST LAYOUT -->
+<div class="test-layout" id="test-layout">
+
+  <!-- PDF PANEL -->
+  <div class="pdf-panel" id="pdf-panel">
+    <div class="pdf-toolbar">
+      <span class="pdf-title" id="pdf-title">📄 Practice Test</span>
+      <div class="pdf-controls">
+        <button class="pdf-btn" onclick="zoomPdf(-.15)">− Thu nhỏ</button>
+        <button class="pdf-btn" onclick="zoomPdf(.15)">+ Phóng to</button>
+        <button class="pdf-btn" id="pdf-link-btn" onclick="openPdfLink()">🔗 Mở PDF</button>
+      </div>
+    </div>
+    <div class="pdf-container">
+      <div class="pdf-loading" id="pdf-loading">
+        <div class="spinner"></div>
+        <p>Đang tải đề thi...</p>
+      </div>
+      <div class="pdf-frame-wrap" id="pdf-frame-wrap" style="display:none">
+        <iframe id="pdf-iframe" src="" title="Đề thi PDF"></iframe>
+      </div>
+      <div class="pdf-fallback" id="pdf-fallback" style="display:none">
+        <p style="font-size:2rem;margin-bottom:.75rem">📄</p>
+        <p style="font-weight:600;margin-bottom:6px;color:var(--text)">Không thể nhúng PDF</p>
+        <p style="font-size:12px;margin-bottom:1rem">Trình duyệt chặn hiển thị — bấm để mở ngoài</p>
+        <a id="pdf-ext-link" href="#" target="_blank" class="btn btn-secondary btn-sm">📥 Mở đề thi PDF →</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ANSWER PANEL -->
+  <div class="answer-panel" id="answer-panel">
+
+    <!-- Inner tabs -->
+    <div class="inner-tabs" id="inner-tabs">
+      <button class="inner-tab active" data-view="do" onclick="switchInnerTab('do',this)">📝 Trả lời</button>
+      <button class="inner-tab" data-view="vocab" onclick="switchInnerTab('vocab',this)">📚 Từ vựng</button>
+      <button class="inner-tab" data-view="quiz" onclick="switchInnerTab('quiz',this)">🎯 Quiz</button>
+      <button class="inner-tab" data-view="review" onclick="switchInnerTab('review',this)">📋 Lỗi sai</button>
+    </div>
+
+    <!-- === DO TAB === -->
+    <div class="panel-section active" id="section-do">
+
+      <!-- Student info -->
+      <div class="student-bar">
+        <h4>Thông tin học sinh</h4>
+        <div class="info-grid">
+          <input class="info-input" id="student-name" placeholder="Họ và tên...">
+          <input class="info-input" id="student-id" placeholder="Mã học sinh">
+        </div>
+      </div>
+
+      <!-- Timer -->
+      <div class="timer-bar">
+        <div class="timer-left">
+          <div class="timer-label">⏱ Thời gian còn lại</div>
+          <div class="timer-display" id="timer-display">60:00</div>
+        </div>
+        <div class="timer-actions">
+          <button class="btn btn-secondary btn-sm" onclick="toggleTimer()" id="timer-btn">▶ Bắt đầu</button>
+          <button class="btn btn-secondary btn-sm" onclick="saveProgress()">💾</button>
+        </div>
+      </div>
+
+      <!-- Progress -->
+      <div class="progress-bar-wrap">
+        <div class="progress-label">
+          <span>Tiến trình</span>
+          <span id="progress-text">0/0 câu</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+        </div>
+      </div>
+
+      <!-- Answer body — dynamically built -->
+      <div class="answer-body" id="answer-body"></div>
+
+      <!-- Submit / results -->
+      <div class="submit-footer" id="submit-footer">
+        <div class="submit-row">
+          <button class="btn btn-danger" style="flex:1" onclick="confirmSubmit()" id="submit-btn">✓ Nộp bài</button>
+        </div>
+      </div>
+
+      <!-- Results (hidden until submit) -->
+      <div class="results-wrap" id="results-wrap" style="display:none"></div>
+
+    </div><!-- /section-do -->
+
+    <!-- === VOCAB TAB === -->
+    <div class="panel-section" id="section-vocab">
+      <div class="vocab-tab-body" id="vocab-tab-body">
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <button class="btn btn-primary btn-sm" onclick="fcFlip()">🔄 Lật thẻ</button>
+          <button class="btn btn-secondary btn-sm" onclick="fcPrev()">← Trước</button>
+          <button class="btn btn-secondary btn-sm" onclick="fcNext()">Tiếp →</button>
+          <button class="btn btn-secondary btn-sm" onclick="shuffleVocab()">🔀 Trộn</button>
+        </div>
+        <div class="flashcard-wrap">
+          <div class="fc" id="fc" onclick="fcFlip()">
+            <div class="fc-front">
+              <div class="fc-word" id="fc-word"></div>
+              <div class="fc-ipa" id="fc-ipa"></div>
+              <div class="fc-hint">Click để xem nghĩa →</div>
+            </div>
+            <div class="fc-back">
+              <div class="fc-meaning" id="fc-meaning"></div>
+              <div class="fc-example" id="fc-example"></div>
+            </div>
+          </div>
+        </div>
+        <div class="fc-nav">
+          <button class="btn btn-secondary btn-sm btn-icon" onclick="fcPrev()">←</button>
+          <span class="fc-counter" id="fc-counter">1/0</span>
+          <button class="btn btn-secondary btn-sm btn-icon" onclick="fcNext()">→</button>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <button class="btn btn-secondary btn-sm" onclick="setVF('all')">📋 Tất cả</button>
+          <button class="btn btn-secondary btn-sm" onclick="setVF('hard')">⭐ Khó</button>
+          <button class="btn btn-secondary btn-sm" onclick="setVF('fav')">❤️ Yêu thích</button>
+        </div>
+        <div class="vocab-grid" id="vocab-grid"></div>
+      </div>
+    </div>
+
+    <!-- === QUIZ TAB === -->
+    <div class="panel-section" id="section-quiz">
+      <div class="quiz-tab-body" id="quiz-tab-body">
+        <div class="quiz-prog">
+          <div class="progress-label">
+            <span id="quiz-prog-text">Câu 1/0</span>
+            <span id="quiz-score-text">Đúng: 0</span>
+          </div>
+          <div class="progress-track"><div class="progress-fill" id="quiz-fill" style="width:0%"></div></div>
+        </div>
+        <div id="quiz-content"></div>
+        <div id="quiz-summary" style="display:none">
+          <div class="quiz-sum">
+            <h3>🎉 Kết quả Quiz</h3>
+            <div class="quiz-big" id="quiz-final-score"></div>
+            <p id="quiz-final-acc" style="color:var(--text2);font-size:13px;margin-bottom:1rem"></p>
+            <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+              <button class="btn btn-primary btn-sm" onclick="restartQuiz()">🔄 Chơi lại</button>
+              <button class="btn btn-secondary btn-sm" onclick="switchInnerTab('vocab',document.querySelector('[data-view=vocab]'))">📚 Từ vựng</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- === REVIEW TAB === -->
+    <div class="panel-section" id="section-review">
+      <div class="review-tab-body" id="review-tab-body">
+        <div id="review-empty" style="text-align:center;padding:2rem;color:var(--muted)">
+          <p style="font-size:2rem;margin-bottom:.5rem">✅</p>
+          <p style="font-size:13px">Nộp bài để xem lỗi sai!</p>
+        </div>
+        <div id="review-items"></div>
+      </div>
+    </div>
+
+  </div><!-- /answer-panel -->
+</div><!-- /test-layout -->
+
+<!-- Mobile bottom bar -->
+<div class="mob-bar" id="mob-bar">
+  <button class="mob-tab active" id="mob-pdf" onclick="mobSwitch('pdf',this)">📄 Đề thi</button>
+  <button class="mob-tab" id="mob-ans" onclick="mobSwitch('ans',this)">📝 Trả lời</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ==========================================
+// STATE
+// ==========================================
+let TEST = null;           // loaded JSON data
+let META = null;           // loaded from articles.json entry
+let userAnswers = {};
+let timerInterval = null;
+let timeLeft = 3600;
+let timerRunning = false;
+let submitted = false;
+
+// Vocab
+let vocabList = [];
+let vcIdx = 0;
+let vcFilter = 'all';
+let hardWords = new Set();
+let favWords = new Set();
+
+// Quiz
+let quizIdx = 0;
+let quizScore = 0;
+let quizAnswered = false;
+
+// ==========================================
+// BOOT — read ?test= from URL
+// ==========================================
+(async function boot() {
+  const params = new URLSearchParams(window.location.search);
+  const testId = params.get('test');
+  if (!testId) {
+    document.getElementById('page-loader').innerHTML = '<p style="color:red;padding:2rem">❌ Thiếu tham số ?test= trong URL.<br><a href="index.html">← Về Dashboard</a></p>';
+    return;
+  }
+  try {
+    await loadTestData(testId);
+  } catch(e) {
+    document.getElementById('page-loader').innerHTML = `<p style="color:red;padding:2rem">❌ Không tải được dữ liệu đề thi.<br><small>${e.message}</small><br><a href="index.html">← Về Dashboard</a></p>`;
+  }
+})();
+
+async function loadTestData(testId) {
+  const loader = document.getElementById('page-loader');
+
+  // Load articles for meta info
+  let articles = [];
+  try {
+    const r = await fetch('data/articles.json');
+    if (r.ok) articles = await r.json();
+  } catch(e) {}
+  META = articles.find(a => a.id === testId) || { id: testId, title: `Test ${testId}` };
+
+  // Load test JSON
+  const dataFile = META.dataFile || `data/${testId}.json`;
+  const res = await fetch(dataFile);
+  if (!res.ok) throw new Error(`HTTP ${res.status} — ${dataFile}`);
+  TEST = await res.json();
+
+  // Set title
+  document.title = `CBT — ${TEST.title||META.title}`;
+  document.getElementById('nav-title').textContent = TEST.title || META.title;
+  document.getElementById('pdf-title').textContent = `📄 ${TEST.title||META.title}`;
+
+  // Time
+  timeLeft = (TEST.duration || 60) * 60;
+  loadFromStorage(testId);
+  updateTimerDisplay();
+
+  // Build UI
+  buildAnswerSheet();
+  buildVocabUI();
+  buildQuizUI();
+
+  // Load PDF
+  loadPDF();
+
+  // Hide loader
+  loader.classList.add('hidden');
+
+  updateProgress();
+}
+
+// ==========================================
+// PDF
+// ==========================================
+function loadPDF() {
+  const pdfUrl = META.pdfUrl || (META.pdfRaw ? `https://docs.google.com/viewer?url=${encodeURIComponent(META.pdfRaw)}&embedded=true` : null);
+  const extUrl = META.pdfRaw || META.pdfUrl || '#';
+
+  document.getElementById('pdf-ext-link').href = extUrl;
+  document.getElementById('pdf-link-btn').onclick = () => window.open(extUrl, '_blank');
+
+  const loading = document.getElementById('pdf-loading');
+  const wrap = document.getElementById('pdf-frame-wrap');
+  const fallback = document.getElementById('pdf-fallback');
+  const iframe = document.getElementById('pdf-iframe');
+
+  if (!pdfUrl) { loading.style.display='none'; fallback.style.display='block'; return; }
+
+  iframe.src = pdfUrl;
+  const timeout = setTimeout(() => {
+    loading.style.display='none'; fallback.style.display='block';
+  }, 9000);
+
+  iframe.onload = () => {
+    clearTimeout(timeout);
+    loading.style.display='none'; wrap.style.display='block';
+  };
+  iframe.onerror = () => {
+    clearTimeout(timeout);
+    loading.style.display='none'; fallback.style.display='block';
+  };
+}
+
+function zoomPdf(d) {
+  const f = document.getElementById('pdf-iframe');
+  const h = parseInt(f.style.height)||800;
+  f.style.height = Math.max(400, h + d*600) + 'px';
+}
+function openPdfLink() {
+  const url = META.pdfRaw || META.pdfUrl || '#';
+  if (url !== '#') window.open(url,'_blank');
+}
+
+// ==========================================
+// BUILD ANSWER SHEET
+// ==========================================
+function buildAnswerSheet() {
+  const body = document.getElementById('answer-body');
+  body.innerHTML = '';
+  const total = TEST.totalQuestions || Object.keys(TEST.answers).length;
+  document.getElementById('progress-text').textContent = `0/${total} câu`;
+
+  TEST.parts.forEach(part => {
+    const block = document.createElement('div');
+    block.className = 'part-block';
+    const dot = `<span class="part-dot" style="background:${part.color||'#3B82F6'}"></span>`;
+    block.innerHTML = `<div class="part-head">${dot}${part.label}</div>`;
+
+    part.questions.forEach(qn => {
+      if (part.type === 'mcq') {
+        block.appendChild(buildMCQRow(qn));
+      } else if (part.type === 'truefalse') {
+        block.appendChild(buildTFRow(qn));
+      } else if (part.type === 'short') {
+        block.appendChild(buildShortRow(qn));
+      }
+    });
+
+    body.appendChild(block);
+  });
+}
+
+function buildMCQRow(qn) {
+  const div = document.createElement('div');
+  div.className = 'mcq-row';
+  div.innerHTML = `
+    <span class="q-num">${qn}</span>
+    <div class="opts">
+      ${['A','B','C','D'].map(o=>`<button class="opt" id="q${qn}-${o}" onclick="selMCQ(${qn},'${o}')">${o}</button>`).join('')}
+    </div>
+    <span class="res-icon" id="ri-${qn}"></span>`;
+  if (userAnswers[qn]) document.createElement('_'); // handled after append
+  return div;
+}
+
+function buildTFRow(qn) {
+  const div = document.createElement('div');
+  div.className = 'tf-row';
+  div.innerHTML = `
+    <span class="q-num">${qn}</span>
+    <button class="tf-btn" id="q${qn}-true" onclick="selTF(${qn},'True')">True</button>
+    <button class="tf-btn" id="q${qn}-false" onclick="selTF(${qn},'False')">False</button>
+    <span class="res-icon" id="ri-${qn}"></span>`;
+  return div;
+}
+
+function buildShortRow(qn) {
+  const div = document.createElement('div');
+  div.className = 'short-row';
+  div.innerHTML = `
+    <span class="q-num">${qn}</span>
+    <input class="short-input" id="q${qn}-inp" placeholder="Đáp án..." oninput="selShort(${qn},this.value)">
+    <span class="res-icon" id="ri-${qn}"></span>`;
+  return div;
+}
+
+// Restore saved answers into UI
+function restoreAnswersToUI() {
+  Object.entries(userAnswers).forEach(([qn, ans]) => {
+    const n = parseInt(qn);
+    const part = TEST.parts.find(p => p.questions.includes(n));
+    if (!part) return;
+    if (part.type === 'mcq') {
+      const btn = document.getElementById(`q${n}-${ans}`);
+      if (btn) btn.classList.add('sel');
+    } else if (part.type === 'truefalse') {
+      const btn = document.getElementById(`q${n}-${ans.toLowerCase()}`);
+      if (btn) btn.classList.add('sel');
+    } else if (part.type === 'short') {
+      const inp = document.getElementById(`q${n}-inp`);
+      if (inp) inp.value = ans;
+    }
+  });
+}
+
+// ==========================================
+// SELECTION
+// ==========================================
+function selMCQ(qn, opt) {
+  if (submitted) return;
+  ['A','B','C','D'].forEach(o => {
+    const b = document.getElementById(`q${qn}-${o}`);
+    if(b) b.classList.remove('sel');
+  });
+  document.getElementById(`q${qn}-${opt}`)?.classList.add('sel');
+  userAnswers[qn] = opt;
+  updateProgress(); autoSave();
+}
+
+function selTF(qn, val) {
+  if (submitted) return;
+  ['true','false'].forEach(v => document.getElementById(`q${qn}-${v}`)?.classList.remove('sel'));
+  document.getElementById(`q${qn}-${val.toLowerCase()}`)?.classList.add('sel');
+  userAnswers[qn] = val;
+  updateProgress(); autoSave();
+}
+
+function selShort(qn, val) {
+  if (submitted) return;
+  userAnswers[qn] = val.trim();
+  updateProgress(); autoSave();
+}
+
+// ==========================================
+// PROGRESS
+// ==========================================
+function updateProgress() {
+  const total = Object.keys(TEST.answers).length;
+  const answered = Object.values(userAnswers).filter(v=>v&&v!=='').length;
+  document.getElementById('progress-text').textContent = `${answered}/${total} câu`;
+  document.getElementById('progress-fill').style.width = `${(answered/total)*100}%`;
+}
+
+// ==========================================
+// TIMER
+// ==========================================
+function toggleTimer() {
+  if (timerRunning) {
+    clearInterval(timerInterval); timerRunning = false;
+    document.getElementById('timer-btn').textContent = '▶ Tiếp tục';
+  } else {
+    timerRunning = true;
+    document.getElementById('timer-btn').textContent = '⏸ Dừng';
+    timerInterval = setInterval(() => {
+      timeLeft--;
+      updateTimerDisplay();
+      autoSave();
+      if (timeLeft <= 0) {
+        clearInterval(timerInterval);
+        showToast('⏰ Hết giờ! Bài đã nộp tự động.');
+        submitTest();
+      }
+    }, 1000);
+  }
+}
+
+function updateTimerDisplay() {
+  const m = Math.floor(timeLeft/60), s = timeLeft%60;
+  const el = document.getElementById('timer-display');
+  el.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  el.classList.toggle('warn', timeLeft <= 600);
+}
+
+// ==========================================
+// SUBMIT
+// ==========================================
+function confirmSubmit() {
+  const total = Object.keys(TEST.answers).length;
+  const answered = Object.values(userAnswers).filter(v=>v&&v!=='').length;
+  const unanswered = total - answered;
+  if (unanswered > 0) {
+    if (!confirm(`Bạn còn ${unanswered} câu chưa làm. Vẫn nộp bài?`)) return;
+  }
+  submitTest();
+}
+
+function submitTest() {
+  if (submitted) return;
+  submitted = true;
+  clearInterval(timerInterval); timerRunning = false;
+  document.getElementById('timer-btn').disabled = true;
+
+  let correct=0, wrong=0, skip=0;
+  const details = [];
+
+  Object.entries(TEST.answers).forEach(([k, correctAns]) => {
+    const qn = parseInt(k);
+    const userAns = userAnswers[qn] || '';
+    let status = 'skipped';
+    if (!userAns) { skip++; status='skipped'; }
+    else if (checkAns(qn, userAns, correctAns)) { correct++; status='correct'; }
+    else { wrong++; status='wrong'; }
+    details.push({q:qn, user:userAns, correct:correctAns, status, exp:TEST.explanations[k]||''});
+  });
+
+  // Mark UI
+  details.forEach(d => {
+    const ri = document.getElementById(`ri-${d.q}`);
+    if (ri) ri.textContent = d.status==='correct'?'✅':d.status==='wrong'?'❌':'⬜';
+    const part = TEST.parts.find(p=>p.questions.includes(d.q));
+    if (!part) return;
+    if (part.type==='mcq') {
+      ['A','B','C','D'].forEach(o=>{
+        const b=document.getElementById(`q${d.q}-${o}`);
+        if(!b)return;
+        b.classList.remove('sel','ok','bad','miss');
+        if(o===d.correct) b.classList.add(d.user?'ok':'miss');
+        if(o===d.user && d.user!==d.correct) b.classList.add('bad');
+        b.disabled=true;
+      });
+    } else if (part.type==='truefalse') {
+      ['True','False'].forEach(v=>{
+        const b=document.getElementById(`q${d.q}-${v.toLowerCase()}`);
+        if(!b)return;
+        b.classList.remove('sel','ok','bad','miss');
+        if(v===d.correct) b.classList.add(d.user?'ok':'miss');
+        if(v===d.user && d.user!==d.correct) b.classList.add('bad');
+        b.disabled=true;
+      });
+    } else if (part.type==='short') {
+      const inp=document.getElementById(`q${d.q}-inp`);
+      if(inp){
+        inp.disabled=true;
+        inp.classList.remove('ok','bad');
+        if(d.user) inp.classList.add(d.status==='correct'?'ok':'bad');
+      }
+    }
+  });
+
+  // Disable student inputs
+  document.getElementById('student-name').disabled=true;
+  document.getElementById('student-id').disabled=true;
+
+  // Score
+  const total = details.length;
+  const score = ((correct/total)*10).toFixed(1);
+
+  // Render results
+  document.getElementById('submit-footer').style.display='none';
+  const rw = document.getElementById('results-wrap');
+  rw.style.display='block';
+  rw.innerHTML = `
+    <div class="score-card">
+      <div class="score-big">${score}/10</div>
+      <div class="score-sub">Học sinh: ${document.getElementById('student-name').value||'Ẩn danh'}</div>
+      <div class="score-stats">
+        <div class="s-stat"><div class="s-stat-n">${correct}</div><div class="s-stat-l">Đúng</div></div>
+        <div class="s-stat"><div class="s-stat-n">${wrong}</div><div class="s-stat-l">Sai</div></div>
+        <div class="s-stat"><div class="s-stat-n">${skip}</div><div class="s-stat-l">Bỏ qua</div></div>
+      </div>
+    </div>
+    <div class="result-actions">
+      <button class="btn btn-secondary btn-sm" onclick="switchInnerTab('review',document.querySelector('[data-view=review]'))">📋 Xem lỗi sai</button>
+      <button class="btn btn-green btn-sm" onclick="switchInnerTab('vocab',document.querySelector('[data-view=vocab]'))">📚 Từ vựng</button>
+      <button class="btn btn-primary btn-sm" onclick="switchInnerTab('quiz',document.querySelector('[data-view=quiz]'))">🎯 Quiz</button>
+    </div>
+    <div id="result-detail-list"></div>
+  `;
+
+  const list = document.getElementById('result-detail-list');
+  list.innerHTML = `<div style="font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">Chi tiết từng câu</div>`;
+  details.forEach(d => {
+    const div = document.createElement('div');
+    div.className = `result-item ${d.status}`;
+    div.innerHTML = `
+      <div class="ri-icon">${d.status==='correct'?'✅':d.status==='wrong'?'❌':'⬜'}</div>
+      <div class="ri-body">
+        <div class="ri-num">Câu ${d.q}</div>
+        <div class="ri-ans">Bạn: <strong>${d.user||'—'}</strong> · Đúng: <strong>${d.correct}</strong></div>
+        ${d.exp&&d.status!=='correct'?`<div class="ri-exp">💡 ${d.exp}</div>`:''}
+      </div>`;
+    list.appendChild(div);
+  });
+
+  // Save history
+  const testId = TEST.id;
+  const all = JSON.parse(localStorage.getItem('cbt_all_history')||'[]');
+  all.unshift({testId, testTitle:TEST.title, date:new Date().toLocaleDateString('vi-VN'), score, correct, total, wrong, skip});
+  localStorage.setItem('cbt_all_history', JSON.stringify(all.slice(0,50)));
+  localStorage.setItem(`cbt_submitted_${testId}`, '1');
+  localStorage.setItem(`cbt_details_${testId}`, JSON.stringify(details));
+
+  // Build review
+  buildReview(details.filter(d=>d.status!=='correct'));
+
+  showToast(`🎉 Điểm: ${score}/10 — Đúng ${correct}/${total}`);
+}
+
+function checkAns(qn, user, correct) {
+  return user.toLowerCase().trim() === correct.toLowerCase().trim();
+}
+
+// ==========================================
+// REVIEW
+// ==========================================
+function buildReview(mistakes) {
+  const el = document.getElementById('review-items');
+  const empty = document.getElementById('review-empty');
+  if (!mistakes.length) { empty.style.display='block'; el.innerHTML=''; return; }
+  empty.style.display='none';
+  el.innerHTML=`<div style="font-size:12px;color:var(--muted);margin-bottom:8px;">${mistakes.length} câu cần ôn lại</div>`;
+  mistakes.forEach(d => {
+    const div = document.createElement('div');
+    div.className = 'rev-item';
+    div.innerHTML=`
+      <h4>Câu ${d.q} ${d.status==='skipped'?'(Bỏ qua)':'(Sai)'}</h4>
+      <div class="rev-ans">Bạn: <span class="yours">${d.user||'—'}</span></div>
+      <div class="rev-ans">Đáp án: <span class="correct">${d.correct}</span></div>
+      ${d.exp?`<div class="rev-exp">💡 ${d.exp}</div>`:''}`;
+    el.appendChild(div);
+  });
+}
+
+// ==========================================
+// VOCAB
+// ==========================================
+function buildVocabUI() {
+  vocabList = [...(TEST.vocabulary||[])];
+  vcIdx = 0;
+  renderFC();
+  renderVocabGrid();
+}
+
+function getVC() {
+  if (vcFilter==='hard') return vocabList.filter(v=>hardWords.has(v.word));
+  if (vcFilter==='fav') return vocabList.filter(v=>favWords.has(v.word));
+  return vocabList;
+}
+
+function renderFC() {
+  const list = getVC();
+  if (!list.length) {
+    document.getElementById('fc-word').textContent='(Chưa có)';
+    document.getElementById('fc-ipa').textContent='';
+    document.getElementById('fc-meaning').textContent='—';
+    document.getElementById('fc-example').textContent='';
+    document.getElementById('fc-counter').textContent='0/0';
+    return;
+  }
+  const v = list[vcIdx % list.length];
+  document.getElementById('fc-word').textContent = v.word;
+  document.getElementById('fc-ipa').textContent = v.ipa||'';
+  document.getElementById('fc-meaning').textContent = v.meaning||'';
+  document.getElementById('fc-example').textContent = v.example||'';
+  document.getElementById('fc-counter').textContent = `${(vcIdx%list.length)+1}/${list.length}`;
+  document.getElementById('fc').classList.remove('flipped');
+}
+function fcFlip(){ document.getElementById('fc').classList.toggle('flipped'); }
+function fcNext(){ vcIdx++; renderFC(); }
+function fcPrev(){ vcIdx=Math.max(0,vcIdx-1); renderFC(); }
+function shuffleVocab(){
+  for(let i=vocabList.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[vocabList[i],vocabList[j]]=[vocabList[j],vocabList[i]];}
+  vcIdx=0; renderFC(); renderVocabGrid(); showToast('🔀 Đã trộn từ vựng!');
+}
+function setVF(f){ vcFilter=f; vcIdx=0; renderFC(); }
+
+function renderVocabGrid() {
+  const grid = document.getElementById('vocab-grid');
+  grid.innerHTML='';
+  vocabList.forEach(v=>{
+    const card=document.createElement('div');
+    card.className=`v-mini${hardWords.has(v.word)?' hard':''}${favWords.has(v.word)?' fav':''}`;
+    card.innerHTML=`
+      <div class="v-actions">
+        <button class="v-act${hardWords.has(v.word)?' ah':''}" onclick="toggleHard('${v.word}',event)">⭐</button>
+        <button class="v-act${favWords.has(v.word)?' af':''}" onclick="toggleFav('${v.word}',event)">❤️</button>
+      </div>
+      <h4>${v.word}</h4>
+      <div class="ipa">${v.ipa||''}</div>
+      <div class="meaning">${v.meaning||''}</div>`;
+    card.onclick=()=>{ vcIdx=vocabList.indexOf(v); vcFilter='all'; renderFC(); };
+    grid.appendChild(card);
+  });
+}
+
+function toggleHard(w,e){ e.stopPropagation(); hardWords.has(w)?hardWords.delete(w):hardWords.add(w); saveVocabState(); renderVocabGrid(); }
+function toggleFav(w,e){ e.stopPropagation(); favWords.has(w)?favWords.delete(w):favWords.add(w); saveVocabState(); renderVocabGrid(); }
+
+// ==========================================
+// QUIZ
+// ==========================================
+function buildQuizUI() {
+  quizIdx=0; quizScore=0; quizAnswered=false;
+  renderQuizQ();
+}
+
+function renderQuizQ() {
+  const qs = TEST.quizQuestions||[];
+  const content = document.getElementById('quiz-content');
+  const summary = document.getElementById('quiz-summary');
+  if (quizIdx >= qs.length) {
+    content.style.display='none'; summary.style.display='block';
+    const pct=qs.length?Math.round((quizScore/qs.length)*100):0;
+    document.getElementById('quiz-final-score').textContent=`${quizScore}/${qs.length}`;
+    document.getElementById('quiz-final-acc').textContent=`Độ chính xác: ${pct}% · ${pct>=80?'🌟 Xuất sắc!':pct>=60?'👍 Tốt!':'📚 Cần ôn thêm!'}`;
+    return;
+  }
+  content.style.display='block'; summary.style.display='none';
+  quizAnswered=false;
+  const q=qs[quizIdx];
+  const total=qs.length;
+  document.getElementById('quiz-prog-text').textContent=`Câu ${quizIdx+1}/${total}`;
+  document.getElementById('quiz-score-text').textContent=`Đúng: ${quizScore}`;
+  document.getElementById('quiz-fill').style.width=`${(quizIdx/total)*100}%`;
+  const letters=['A','B','C','D'];
+  content.innerHTML=`
+    <div class="quiz-card">
+      <div class="quiz-q">${quizIdx+1}. ${q.question}</div>
+      <div class="quiz-opts">${(q.options||[]).map((o,i)=>`
+        <button class="quiz-opt" id="qo-${i}" onclick="pickQ(${i})">
+          <span class="quiz-letter">${letters[i]}</span>${o}
+        </button>`).join('')}
+      </div>
+      <div class="quiz-fb" id="quiz-fb"></div>
+    </div>
+    <div style="display:flex;justify-content:flex-end;margin-top:8px">
+      <button class="btn btn-primary btn-sm" id="qnext" onclick="nextQ()" style="display:none">Câu tiếp →</button>
+    </div>`;
+}
+
+function pickQ(idx) {
+  if (quizAnswered) return;
+  quizAnswered=true;
+  const qs=TEST.quizQuestions||[];
+  const q=qs[quizIdx];
+  const ok = idx===q.answer;
+  if (ok) quizScore++;
+  document.querySelectorAll('.quiz-opt').forEach((b,i)=>{
+    b.disabled=true;
+    if(i===q.answer) b.classList.add('qreveal');
+    if(i===idx&&!ok) b.classList.add('qbad');
+  });
+  const fb=document.getElementById('quiz-fb');
+  fb.className=`quiz-fb show ${ok?'fb-ok':'fb-bad'}`;
+  fb.innerHTML=`${ok?'✅ Chính xác!':` ❌ Sai! Đáp án: ${'ABCD'[q.answer]}`} — ${q.explanation||''}`;
+  document.getElementById('qnext').style.display='inline-flex';
+}
+function nextQ(){ quizIdx++; renderQuizQ(); }
+function restartQuiz(){ quizIdx=0; quizScore=0; document.getElementById('quiz-summary').style.display='none'; document.getElementById('quiz-content').style.display='block'; renderQuizQ(); }
+
+// ==========================================
+// LOCAL STORAGE
+// ==========================================
+function storageKey(suffix) { return `cbt_${TEST.id}_${suffix}`; }
+
+function saveProgress() {
+  localStorage.setItem(storageKey('answers'), JSON.stringify(userAnswers));
+  localStorage.setItem(storageKey('timeleft'), timeLeft);
+  localStorage.setItem(storageKey('name'), document.getElementById('student-name').value);
+  localStorage.setItem(storageKey('sid'), document.getElementById('student-id').value);
+  showToast('💾 Đã lưu tiến trình!');
+}
+
+function autoSave() {
+  localStorage.setItem(storageKey('answers'), JSON.stringify(userAnswers));
+  localStorage.setItem(storageKey('timeleft'), timeLeft);
+}
+
+function saveVocabState() {
+  localStorage.setItem(storageKey('hard'), JSON.stringify([...hardWords]));
+  localStorage.setItem(storageKey('fav'), JSON.stringify([...favWords]));
+}
+
+function loadFromStorage(testId) {
+  try {
+    const saved=localStorage.getItem(`cbt_${testId}_answers`);
+    if (saved) userAnswers=JSON.parse(saved);
+    const tl=localStorage.getItem(`cbt_${testId}_timeleft`);
+    if (tl) timeLeft=parseInt(tl);
+    const nm=localStorage.getItem(`cbt_${testId}_name`);
+    if (nm) document.getElementById('student-name').value=nm;
+    const sid=localStorage.getItem(`cbt_${testId}_sid`);
+    if (sid) document.getElementById('student-id').value=sid;
+    const hard=localStorage.getItem(`cbt_${testId}_hard`);
+    if (hard) hardWords=new Set(JSON.parse(hard));
+    const fav=localStorage.getItem(`cbt_${testId}_fav`);
+    if (fav) favWords=new Set(JSON.parse(fav));
+    // Check if previously submitted
+    if (localStorage.getItem(`cbt_submitted_${testId}`)==='1') {
+      // Will re-submit after build via setTimeout
+    }
+  } catch(e){}
+}
+
+// After building answer sheet, restore UI state
+document.addEventListener('DOMContentLoaded', () => {});
+
+// ==========================================
+// NAVIGATION
+// ==========================================
+function switchInnerTab(view, btn) {
+  // Update tab buttons
+  document.querySelectorAll('.inner-tab').forEach(t => t.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  // Show section
+  document.querySelectorAll('.panel-section').forEach(s => s.classList.remove('active'));
+  document.getElementById(`section-${view}`)?.classList.add('active');
+  // Update nav buttons
+  ['do','vocab-nav','quiz-nav','review-nav'].forEach(id => {
+    document.getElementById(`nav-${id}`)?.classList.remove('active');
+  });
+}
+
+function showTestView(v) {
+  switchInnerTab(v, document.querySelector(`[data-view="${v}"]`));
+  ['do','vocab-nav','quiz-nav','review-nav'].forEach(id => {
+    document.getElementById(`nav-${id}`)?.classList.remove('active');
+  });
+  const map = {do:'do', vocab:'vocab-nav', quiz:'quiz-nav', review:'review-nav'};
+  if (map[v]) document.getElementById(`nav-${map[v]}`)?.classList.add('active');
+}
+
+// Mobile
+function mobSwitch(tab, btn) {
+  document.querySelectorAll('.mob-tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  const pdf=document.getElementById('pdf-panel');
+  const ans=document.getElementById('answer-panel');
+  if (tab==='pdf') { pdf.classList.remove('mob-hide'); ans.classList.add('mob-hide'); }
+  else { ans.classList.remove('mob-hide'); pdf.classList.add('mob-hide'); }
+}
+
+// Toast
+function showToast(msg) {
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+// After test layout is built, restore answers to UI
+// Using MutationObserver to wait for DOM elements
+const observer = new MutationObserver(() => {
+  if (TEST && document.getElementById('answer-body')?.children.length > 0) {
+    restoreAnswersToUI();
+    observer.disconnect();
+  }
+});
+observer.observe(document.getElementById('answer-body') || document.body, {childList:true, subtree:true});
+</script>
+</body>
+</html>
