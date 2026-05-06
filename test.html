@@ -638,8 +638,15 @@ async function loadTestData(testId) {
 // PDF
 // ==========================================
 function loadPDF() {
-  const pdfUrl = META.pdfUrl || (META.pdfRaw ? `https://docs.google.com/viewer?url=${encodeURIComponent(META.pdfRaw)}&embedded=true` : null);
-  const extUrl = META.pdfRaw || META.pdfUrl || '#';
+  // LẤY ĐÚNG RAW URL - không dùng GitHub blob URL
+  const rawPdfUrl = META.pdfRaw || META.pdfUrl;
+  
+  // Tạo Google Docs Viewer URL từ raw URL
+  const googleViewerUrl = rawPdfUrl ? `https://docs.google.com/viewer?url=${encodeURIComponent(rawPdfUrl)}&embedded=true` : null;
+  
+  // Dùng Google Docs Viewer làm URL chính
+  const pdfUrl = googleViewerUrl;
+  const extUrl = rawPdfUrl || '#';
 
   document.getElementById('pdf-ext-link').href = extUrl;
   document.getElementById('pdf-link-btn').onclick = () => window.open(extUrl, '_blank');
@@ -649,9 +656,49 @@ function loadPDF() {
   const fallback = document.getElementById('pdf-fallback');
   const iframe = document.getElementById('pdf-iframe');
 
-  if (!pdfUrl) { loading.style.display='none'; fallback.style.display='block'; return; }
+  if (!pdfUrl) { 
+    loading.style.display='none'; 
+    fallback.style.display='block'; 
+    return; 
+  }
 
+  // Load thử Google Docs Viewer trước
   iframe.src = pdfUrl;
+  
+  // Nếu không load được sau 5 giây, thử dùng RAW URL trực tiếp
+  const timeout = setTimeout(() => {
+    if (iframe.contentDocument && iframe.contentDocument.readyState === 'complete') {
+      // Đã load thành công
+      clearTimeout(timeout);
+    } else {
+      // Thử dùng PDF.js hoặc fallback
+      console.log('Google Docs Viewer timeout, using raw URL');
+      iframe.src = rawPdfUrl;
+    }
+  }, 8000);
+  
+  const timeout2 = setTimeout(() => {
+    // Sau 12 giây vẫn không được thì hiển thị fallback
+    loading.style.display = 'none';
+    fallback.style.display = 'block';
+    wrap.style.display = 'none';
+  }, 12000);
+
+  iframe.onload = () => {
+    clearTimeout(timeout);
+    clearTimeout(timeout2);
+    loading.style.display = 'none';
+    wrap.style.display = 'block';
+    fallback.style.display = 'none';
+  };
+  
+  iframe.onerror = () => {
+    clearTimeout(timeout);
+    clearTimeout(timeout2);
+    loading.style.display = 'none';
+    fallback.style.display = 'block';
+  };
+}
   const timeout = setTimeout(() => {
     loading.style.display='none'; fallback.style.display='block';
   }, 9000);
