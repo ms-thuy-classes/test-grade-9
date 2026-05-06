@@ -1,0 +1,37 @@
+{
+  "tests": [
+    {
+      "id": "test19",
+      "title": "Practice Test 19 - Full Skills",
+      "description": "40 câu hỏi · 7 phần · Phát âm, Từ vựng, Đọc hiểu, Điền từ",
+      "duration": 60,
+      "totalQuestions": 40,
+      "pdfUrl": "https://raw.githubusercontent.com/ms-thuy-classes/audio/main/Test%2019.pdf",
+      "dataFile": "data/tests/test19.json",
+      "status": "available",
+      "difficulty": "intermediate"
+    },
+    {
+      "id": "test20",
+      "title": "Practice Test 20 - Reading Focus",
+      "description": "35 câu hỏi · Đọc hiểu chuyên sâu",
+      "duration": 55,
+      "totalQuestions": 35,
+      "pdfUrl": "https://example.com/test20.pdf",
+      "dataFile": "data/tests/test20.json",
+      "status": "coming_soon",
+      "difficulty": "advanced"
+    },
+    {
+      "id": "test21",
+      "title": "Practice Test 21 - Grammar & Vocabulary",
+      "description": "50 câu hỏi · Ngữ pháp & Từ vựng nâng cao",
+      "duration": 45,
+      "totalQuestions": 50,
+      "pdfUrl": "https://example.com/test21.pdf",
+      "dataFile": "data/tests/test21.json",
+      "status": "coming_soon",
+      "difficulty": "intermediate"
+    }
+  ]
+}
