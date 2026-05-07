@@ -69,6 +69,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .badge-green{background:var(--green-l);color:#065F46}
 .badge-orange{background:var(--orange-l);color:#92400E}
 .badge-gray{background:#F1F5F9;color:#475569}
+.badge-purple{background:#EDE9FE;color:#6D28D9}
 
 .tc-right{display:flex;flex-direction:column;align-items:flex-end;gap:10px}
 .score-pill{background:var(--blue-50);border:1px solid var(--blue-200);border-radius:var(--r-sm);padding:8px 14px;text-align:center;min-width:80px}
@@ -79,9 +80,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .btn-primary:hover{background:var(--blue-700);transform:translateY(-1px)}
 .btn-secondary{background:var(--blue-50);color:var(--blue-600);border:1px solid var(--blue-200)}
 .btn-secondary:hover{background:var(--blue-100)}
-
-/* PROGRESS RING */
-.tc-progress{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
 
 /* EMPTY */
 .empty{text-align:center;padding:3rem;color:var(--muted)}
@@ -146,7 +144,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 
 <div class="main">
   <div class="section-header">
-    <div class="section-title">Danh sách đề thi</div>
+    <div class="section-title">📚 Danh sách đề thi</div>
+    <div style="font-size:12px; color:var(--muted);" id="source-indicator"></div>
   </div>
 
   <div class="filter-bar">
@@ -155,7 +154,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
       <input type="text" id="search" placeholder="Tìm kiếm đề thi..." oninput="filterCards()">
     </div>
     <div class="filter-chips" id="tag-chips">
-      <button class="chip active" data-tag="all" onclick="setTag(this,'all')">Tất cả</button>
+      <button class="chip active" data-tag="all" onclick="setTag(this,'all')">📋 Tất cả</button>
     </div>
   </div>
 
@@ -181,30 +180,74 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 <div class="toast" id="toast"></div>
 
 <script>
+// ==========================================
+// LOAD DATA FROM BOTH data/ AND data2/ FOLDERS
+// ==========================================
 let articles = [];
 let activeTag = 'all';
+let loadedFrom = '';
 
-async function init() {
-  await loadArticles();
-  loadHistory();
+// Hàm thử fetch từ nhiều nguồn
+async function tryFetchSources(paths) {
+  for (const path of paths) {
+    try {
+      const res = await fetch(path);
+      if (res.ok) {
+        const data = await res.json();
+        return { data, source: path };
+      }
+    } catch(e) {}
+  }
+  return null;
 }
 
 async function loadArticles() {
-  try {
-    const res = await fetch('data/articles.json');
-    if (!res.ok) throw new Error('fetch failed');
-    articles = await res.json();
-  } catch(e) {
-    // Fallback inline data if file fetch fails (e.g. opened directly without server)
+  // Thử load từ nhiều nguồn khác nhau
+  const sources = [
+    'data/articles.json',
+    'data2/articles.json',
+    'data/articles.json?t=' + Date.now(),
+    'data2/articles.json?t=' + Date.now()
+  ];
+  
+  const result = await tryFetchSources(sources);
+  
+  if (result) {
+    articles = result.data.tests || result.data;
+    loadedFrom = result.source;
+    document.getElementById('source-indicator').innerHTML = `📁 Nguồn: ${loadedFrom}`;
+    showToast(`✅ Đã tải ${articles.length} đề thi từ ${loadedFrom}`);
+  } else {
+    // Fallback data nếu không load được file nào
+    console.warn('Không thể load từ data/ hoặc data2/, dùng fallback data');
     articles = [
       {
-        id:"test19",title:"Practice Test 19",
-        description:"Phát âm, Từ vựng, Đọc hiểu, Điền từ, Viết lại câu",
-        dataFile:"data/test19.json",duration:60,totalQuestions:40,
-        tags:["pronunciation","reading","grammar"],difficulty:"medium"
+        id: "test19",
+        title: "Practice Test 19 - Full Skills",
+        description: "Phát âm, Từ vựng, Đọc hiểu, Điền từ, Viết lại câu",
+        dataFile: "data/test19.json",
+        duration: 60,
+        totalQuestions: 40,
+        tags: ["pronunciation", "reading", "grammar"],
+        difficulty: "medium",
+        status: "available"
+      },
+      {
+        id: "test20",
+        title: "Practice Test 20 - Reading Focus",
+        description: "Đọc hiểu chuyên sâu với 35 câu hỏi",
+        dataFile: "data2/test20.json",
+        duration: 55,
+        totalQuestions: 35,
+        tags: ["reading", "vocabulary"],
+        difficulty: "advanced",
+        status: "coming_soon"
       }
     ];
+    loadedFrom = "fallback (built-in)";
+    document.getElementById('source-indicator').innerHTML = `📁 Nguồn: Dữ liệu mặc định`;
   }
+  
   renderCards(articles);
   buildTagChips();
   updateHeroStats();
@@ -212,14 +255,21 @@ async function loadArticles() {
 
 function buildTagChips() {
   const tags = new Set(['all']);
-  articles.forEach(a => (a.tags||[]).forEach(t => tags.add(t)));
+  articles.forEach(a => (a.tags || []).forEach(t => tags.add(t)));
   const container = document.getElementById('tag-chips');
   container.innerHTML = '';
   tags.forEach(tag => {
     const btn = document.createElement('button');
-    btn.className = 'chip' + (tag==='all'?' active':'');
+    btn.className = 'chip' + (tag === 'all' ? ' active' : '');
     btn.dataset.tag = tag;
-    btn.textContent = tag==='all'?'Tất cả': tag.charAt(0).toUpperCase()+tag.slice(1);
+    const tagNames = {
+      'all': '📋 Tất cả',
+      'pronunciation': '🔊 Phát âm',
+      'reading': '📖 Đọc hiểu',
+      'grammar': '📝 Ngữ pháp',
+      'vocabulary': '📚 Từ vựng'
+    };
+    btn.textContent = tagNames[tag] || (tag === 'all' ? '📋 Tất cả' : tag.charAt(0).toUpperCase() + tag.slice(1));
     btn.onclick = () => setTag(btn, tag);
     container.appendChild(btn);
   });
@@ -235,8 +285,8 @@ function setTag(el, tag) {
 function filterCards() {
   const q = document.getElementById('search').value.toLowerCase();
   const filtered = articles.filter(a => {
-    const matchSearch = a.title.toLowerCase().includes(q) || (a.description||'').toLowerCase().includes(q);
-    const matchTag = activeTag==='all' || (a.tags||[]).includes(activeTag);
+    const matchSearch = a.title.toLowerCase().includes(q) || (a.description || '').toLowerCase().includes(q);
+    const matchTag = activeTag === 'all' || (a.tags || []).includes(activeTag);
     return matchSearch && matchTag;
   });
   renderCards(filtered);
@@ -246,7 +296,11 @@ function renderCards(list) {
   document.getElementById('skeleton-area').style.display = 'none';
   const grid = document.getElementById('test-grid');
   const empty = document.getElementById('empty-state');
-  if (!list.length) { grid.style.display='none'; empty.style.display='block'; return; }
+  if (!list.length) { 
+    grid.style.display = 'none'; 
+    empty.style.display = 'block'; 
+    return; 
+  }
   grid.style.display = 'grid';
   empty.style.display = 'none';
 
@@ -254,82 +308,111 @@ function renderCards(list) {
   list.forEach(a => {
     const history = getTestHistory(a.id);
     const done = history.length > 0;
-    const best = done ? Math.max(...history.map(h=>parseFloat(h.score))) : null;
-
-    const url = `test.html?test=${a.id}`;
+    const best = done ? Math.max(...history.map(h => parseFloat(h.score))) : null;
+    
+    // Xác định đường dẫn đúng cho file test
+    let testUrl = `test.html?test=${a.id}`;
+    
     const card = document.createElement('a');
     card.className = 'test-card';
-    card.href = url;
+    card.href = testUrl;
+    
+    // Xác định trạng thái đề thi
+    const isAvailable = a.status !== 'coming_soon';
+    const statusBadge = isAvailable ? 
+      '<span class="badge badge-green">✅ Sẵn sàng</span>' : 
+      '<span class="badge badge-orange">🔜 Sắp ra mắt</span>';
+    
     card.innerHTML = `
       <div class="tc-left">
         <div class="tc-top">
-          <span class="tc-num">${a.id.replace('test','Test ')}</span>
+          <span class="tc-num">${a.id.replace('test', 'Test ')}</span>
           <span class="tc-title">${a.title}</span>
         </div>
-        <div class="tc-desc">${a.description||''}</div>
+        <div class="tc-desc">${a.description || ''}</div>
         <div class="tc-meta">
           <span class="badge badge-blue">⏱ ${a.duration} phút</span>
           <span class="badge badge-blue">📝 ${a.totalQuestions} câu</span>
-          ${done ? `<span class="badge badge-green">✅ Đã làm</span>` : `<span class="badge badge-gray">📋 Chưa làm</span>`}
-          ${(a.tags||[]).map(t=>`<span class="badge badge-gray">${t}</span>`).join('')}
+          ${statusBadge}
+          ${done ? `<span class="badge badge-green">📊 Đã làm ${history.length} lần</span>` : ''}
+          ${(a.tags || []).map(t => {
+            const tagNames = {'pronunciation':'🔊 Phát âm','reading':'📖 Đọc','grammar':'📝 Ngữ pháp','vocabulary':'📚 Từ vựng'};
+            return `<span class="badge badge-gray">${tagNames[t] || t}</span>`;
+          }).join('')}
         </div>
-        ${done && history[0] ? `<div style="font-size:12px;color:var(--muted);margin-top:6px;">Lần gần nhất: ${history[0].date} · Đúng ${history[0].correct}/${a.totalQuestions}</div>` : ''}
+        ${done && history[0] ? `<div style="font-size:12px;color:var(--muted);margin-top:6px;">📅 Lần gần nhất: ${history[0].date} · Đúng ${history[0].correct}/${a.totalQuestions}</div>` : ''}
       </div>
       <div class="tc-right">
         ${done ? `<div class="score-pill"><div class="score-pill-num">${best}/10</div><div class="score-pill-label">Best score</div></div>` : ''}
-        <a class="btn btn-primary" href="${url}" onclick="event.stopPropagation()">${done?'Làm lại →':'Bắt đầu →'}</a>
+        <span class="btn ${isAvailable ? 'btn-primary' : 'btn-secondary'}" style="${!isAvailable ? 'opacity:0.6;cursor:not-allowed' : ''}" onclick="${isAvailable ? '' : 'event.preventDefault(); showToast(\'Đề thi đang được phát triển!\'); return false;'}">
+          ${isAvailable ? (done ? '✏️ Làm lại →' : '🎯 Bắt đầu →') : '🔒 Sắp mở'}
+        </span>
       </div>
     `;
+    
+    // Nếu không available, vô hiệu hóa link
+    if (!isAvailable) {
+      card.href = 'javascript:void(0)';
+      card.style.cursor = 'default';
+    }
+    
     grid.appendChild(card);
   });
 }
 
 function updateHeroStats() {
   document.getElementById('total-tests').textContent = articles.length;
-  const history = JSON.parse(localStorage.getItem('cbt_all_history')||'[]');
-  const doneIds = new Set(history.map(h=>h.testId));
+  const history = JSON.parse(localStorage.getItem('cbt_all_history') || '[]');
+  const doneIds = new Set(history.map(h => h.testId));
   document.getElementById('total-done').textContent = doneIds.size;
-  const scores = history.map(h=>parseFloat(h.score)).filter(Boolean);
-  document.getElementById('best-score').textContent = scores.length ? Math.max(...scores)+'/10' : '—';
+  const scores = history.map(h => parseFloat(h.score)).filter(Boolean);
+  const bestScore = scores.length ? Math.max(...scores) : null;
+  document.getElementById('best-score').textContent = bestScore ? bestScore + '/10' : '—';
 }
 
 function getTestHistory(id) {
-  const all = JSON.parse(localStorage.getItem('cbt_all_history')||'[]');
-  return all.filter(h=>h.testId===id);
+  const all = JSON.parse(localStorage.getItem('cbt_all_history') || '[]');
+  return all.filter(h => h.testId === id);
 }
 
 function loadHistory() {
-  const all = JSON.parse(localStorage.getItem('cbt_all_history')||'[]');
+  const all = JSON.parse(localStorage.getItem('cbt_all_history') || '[]');
   const card = document.getElementById('history');
   const tbody = document.getElementById('history-body');
   if (!all.length) return;
   card.style.display = 'block';
   tbody.innerHTML = '';
-  all.slice(0,20).forEach(h => {
+  all.slice(0, 20).forEach(h => {
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td>${h.testTitle||h.testId}</td>
+      <td><strong>${h.testTitle || h.testId}</strong></td>
       <td>${h.date}</td>
-      <td><strong>${h.score}/10</strong></td>
+      <td><span style="background:${parseFloat(h.score)>=8?'#D1FAE5':parseFloat(h.score)>=5?'#FEF3C7':'#FEE2E2'}; padding:2px 8px; border-radius:20px; font-weight:600;">${h.score}/10</span></td>
       <td>${h.correct}/${h.total}</td>
-      <td><a class="btn btn-secondary" href="test.html?test=${h.testId}" style="font-size:12px;padding:5px 12px;">Xem lại</a></td>
+      <td><a class="btn btn-secondary" href="test.html?test=${h.testId}" style="font-size:12px;padding:5px 12px;">📖 Xem lại</a></td>
     `;
     tbody.appendChild(tr);
   });
 }
 
 function scrollToHistory() {
-  document.getElementById('history').scrollIntoView({behavior:'smooth'});
+  document.getElementById('history').scrollIntoView({ behavior: 'smooth' });
 }
 
 function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
   t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),3000);
+  setTimeout(() => t.classList.remove('show'), 3000);
 }
 
+// Khởi tạo
 init();
+
+async function init() {
+  await loadArticles();
+  loadHistory();
+}
 </script>
 </body>
 </html>
