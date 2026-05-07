@@ -569,7 +569,7 @@ async function loadTestData() {
   
   try {
     // Load articles.json để lấy danh sách đề
-    const articlesRes = await fetch('data/articles.json');
+    const articlesRes = await fetch('data2/articles.json');
     const articles = await articlesRes.json();
     
     // Lấy test đầu tiên hoặc theo query param
@@ -581,7 +581,7 @@ async function loadTestData() {
     if (!testInfo) throw new Error('Không tìm thấy đề thi');
     
     // Load đề JSON
-    const testRes = await fetch(testInfo.dataFile);
+    const testRes = await fetch(`data2/${testInfo.dataFile.split('/').pop()}`);
     const testData = await testRes.json();
     
     questions = testData.questions;
