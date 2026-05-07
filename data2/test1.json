@@ -1,0 +1,25 @@
+{
+  "id": "test1",
+  "title": "English Grammar & Vocabulary Test",
+  "duration": 60,
+  "questions": [
+    {
+      "text": "I think students should be _____ to choose their subjects at school.",
+      "options": ["allowed", "allow", "to allow", "allowing"],
+      "answer": "A",
+      "explanation": "'be allowed to' = được phép làm gì"
+    },
+    {
+      "text": "Gender equality _____ only when women and men enjoy the same opportunities.",
+      "options": ["will achieve", "achieves", "achieve", "will be achieved"],
+      "answer": "D",
+      "explanation": "Câu bị động thì tương lai đơn"
+    },
+    {
+      "text": "We _____ protect women and girls from domestic violence.",
+      "options": ["shouldn't", "must", "mustn't", "can"],
+      "answer": "B",
+      "explanation": "'must' = bắt buộc phải làm"
+    }
+  ]
+}
